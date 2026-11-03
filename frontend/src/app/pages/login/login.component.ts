@@ -1,12 +1,12 @@
 import { Component } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/auth.service';
 import { errorMessage } from '../../core/error-message';
 
 @Component({
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, RouterLink],
   template: `
     <section class="login-layout">
       <div class="login-art">
@@ -39,6 +39,7 @@ import { errorMessage } from '../../core/error-message';
               {{ loading ? 'Autenticando...' : 'Entrar na mesa' }} <span aria-hidden="true">↗</span>
             </button>
           </form>
+          <div class="demo-hint">Ainda não tem conta? <a routerLink="/register">Criar conta</a></div>
           <div class="demo-hint">Conta de demonstração <strong>admin</strong> · senha <strong>Poker123!</strong></div>
         </div>
         <div class="login-copyright">© 2026 POKER LEDGER <span>·</span> FEITO PARA QUEM LEVA O JOGO A SÉRIO</div>
@@ -74,6 +75,7 @@ import { errorMessage } from '../../core/error-message';
     .submit { width:100%; display:flex; align-items:center; justify-content:space-between; margin-top:24px; }
     .alert { padding:11px 13px; margin-top:18px; border-radius:4px; background:#f9e9e5; color:#943e32; font-size:12px; }
     .demo-hint { margin-top:24px; color:#81877f; font-size:11px; text-align:center; }
+    .demo-hint a { color:#495449; font-weight:700; }
     .demo-hint strong { color:#495449; }
     .login-copyright { color:#929890; text-align:center; font-size:8px; letter-spacing:1.2px; }
     .login-copyright span { color:#829957; }
