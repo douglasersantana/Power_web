@@ -14,6 +14,7 @@ export class AuthService {
   private readonly apiUrl = 'http://localhost:8080/api/auth';
   private readonly tokenKey = 'poker-ledger-token';
   private readonly usernameKey = 'poker-ledger-username';
+  private readonly expiresKey = 'poker-ledger-expires';
 
   constructor(private readonly http: HttpClient, private readonly router: Router) {}
 
@@ -22,8 +23,13 @@ export class AuthService {
       tap(response => {
         localStorage.setItem(this.tokenKey, response.token);
         localStorage.setItem(this.usernameKey, response.username);
+        localStorage.setItem(this.expiresKey, response.expiresAt);
       })
     );
+  }
+
+  register(username: string, password: string): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/register`, { username, password });
   }
 
   token(): string | null {
@@ -35,12 +41,25 @@ export class AuthService {
   }
 
   isAuthenticated(): boolean {
-    return this.token() !== null;
+    if (this.token() === null) {
+      return false;
+    }
+    const expiresAt = Date.parse(localStorage.getItem(this.expiresKey) ?? '');
+    if (!Number.isNaN(expiresAt) && expiresAt <= Date.now()) {
+      this.clearSession();
+      return false;
+    }
+    return true;
   }
 
   logout(): void {
+    this.clearSession();
+    void this.router.navigate(['/login']);
+  }
+
+  private clearSession(): void {
     localStorage.removeItem(this.tokenKey);
     localStorage.removeItem(this.usernameKey);
-    void this.router.navigate(['/login']);
+    localStorage.removeItem(this.expiresKey);
   }
 }

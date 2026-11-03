@@ -15,6 +15,7 @@ import { errorMessage } from '../../core/error-message';
         <a class="button button-dark" routerLink="/players/new">Adicionar jogador <span>＋</span></a>
       </div>
       @if (message) { <div class="alert" role="alert">{{ message }}</div> }
+      @if (successMessage) { <div class="success" role="status">{{ successMessage }}</div> }
       <div class="stats">
         <article class="stat-card"><span>JOGADORES NA MESA</span><strong>{{ players.length.toString().padStart(2, '0') }}</strong><small>participantes cadastrados</small></article>
         <article class="stat-card"><span>FICHAS EM JOGO</span><strong>{{ totalChips.toLocaleString('pt-BR') }}</strong><small>total distribuído</small></article>
@@ -88,6 +89,7 @@ import { errorMessage } from '../../core/error-message';
     .empty a { color:#556b35; font-weight:600; text-decoration:none; }
     .page-note { margin-top:18px; color:#899087; font-size:10px; }
     .page-note span { color:#839957; }
+    .success { margin-bottom:18px; padding:12px; background:#edf4dc; color:#556b35; border-radius:4px; font-size:12px; }
     .alert { margin-bottom:18px; padding:12px; background:#f9e9e5; color:#943e32; border-radius:4px; font-size:12px; }
     .visually-hidden { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
     @media(max-width:650px) { .page { padding:34px 16px 25px; } .page-heading { align-items:flex-start; gap:18px; flex-direction:column; } h1 { font-size:36px; } .stats { grid-template-columns:1fr; gap:8px; } .stat-card { min-height:108px; } th,td { padding-left:13px; padding-right:13px; } }
@@ -97,6 +99,7 @@ export class PlayerListComponent implements OnInit {
   players: Player[] = [];
   loading = true;
   message = '';
+  successMessage = '';
 
   constructor(private readonly playersApi: PlayerService) {}
 
@@ -121,8 +124,15 @@ export class PlayerListComponent implements OnInit {
       return;
     }
     this.playersApi.delete(player.id).subscribe({
-      next: () => this.players = this.players.filter(item => item.id !== player.id),
-      error: error => this.message = errorMessage(error, 'Não foi possível excluir o jogador.')
+      next: () => {
+        this.players = this.players.filter(item => item.id !== player.id);
+        this.message = '';
+        this.successMessage = `${player.nickname} foi excluído com sucesso.`;
+      },
+      error: error => {
+        this.successMessage = '';
+        this.message = errorMessage(error, 'Não foi possível excluir o jogador.');
+      }
     });
   }
 
